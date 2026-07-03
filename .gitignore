@@ -1,0 +1,15 @@
+# Ignore local virtual environment packages
+.venv/
+venv/
+env/
+
+# Ignore sensitive API credential keys
+.env
+
+# Ignore python compilation caches
+__pycache__/
+*.pyc
+
+# Ignore OS hidden data files
+.DS_Store
+Thumbs.db

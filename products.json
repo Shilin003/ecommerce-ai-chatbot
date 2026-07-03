@@ -1,0 +1,65 @@
+[
+  {
+    "id": 1,
+    "name": "Ceramic Everyday Mug",
+    "description": "Matte glaze finishing, 12oz capacity, entirely dishwasher safe.",
+    "price": 18.00,
+    "image_url": "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=500&q=80"
+  },
+  {
+    "id": 2,
+    "name": "Canvas Market Tote",
+    "description": "Heavy 14oz organic cotton canvas featuring a double reinforced base.",
+    "price": 32.00,
+    "image_url": "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=500&q=80"
+  },
+  {
+    "id": 3,
+    "name": "Linen Wick Candle",
+    "description": "Natural soy wax with a clean 45hr therapeutic burn of cedar and sage notes.",
+    "price": 24.00,
+    "image_url": "https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=500&q=80"
+  },
+  {
+    "id": 4,
+    "name": "Recycled Wool Throw",
+    "description": "Premium 130x180cm structural dimensions, woven from sustainable recycled wool blends.",
+    "price": 68.00,
+    "image_url": "https://images.unsplash.com/photo-1580301762395-21ce84d00bc6?auto=format&fit=crop&w=500&q=80"
+  },
+  {
+    "id": 5,
+    "name": "Insulated Steel Bottle",
+    "description": "Double-walled 750ml flask, keeps cold liquids iced 24hr / hot drinks piping for 12hr.",
+    "price": 29.00,
+    "image_url": "https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&w=500&q=80"
+  },
+  {
+    "id": 6,
+    "name": "Leather Cardholder",
+    "description": "Hand-stitched full-grain vegetable tanned leather with a compact 4-slot layout.",
+    "price": 22.00,
+    "image_url": "https://images.unsplash.com/photo-1627123424574-724758594e93?auto=format&fit=crop&w=500&q=80"
+  },
+  {
+    "id": 7,
+    "name": "Organic Cotton Socks",
+    "description": "Premium triple-pack bundle, breathable ribbed comfort weave construction.",
+    "price": 15.00,
+    "image_url": "https://images.unsplash.com/photo-1582966772680-860e372bb558?auto=format&fit=crop&w=500&q=80"
+  },
+  {
+    "id": 8,
+    "name": "Minimalist Desk Clock",
+    "description": "Completely silent precise quartz movement housed inside natural grain ash wood.",
+    "price": 45.00,
+    "image_url": "https://images.unsplash.com/photo-1563861826100-9cb868fdbe1c?auto=format&fit=crop&w=500&q=80"
+  },
+  {
+    "id": 9,
+    "name": "Handwoven Storage Basket",
+    "description": "Flexible natural sea-grass fiber build with robust integrated carry loop handles.",
+    "price": 38.00,
+    "image_url": "https://images.unsplash.com/photo-1531835551805-16d864c8d311?auto=format&fit=crop&w=500&q=80"
+  }
+]

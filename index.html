@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Common Goods — Complete Production Storefront</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-bg: #F6F4EF;
+    --color-surface: #FFFFFF;
+    --color-ink: #1C2321;
+    --color-ink-soft: #5B6460;
+    --color-accent: #2F6F5E;
+    --color-accent-2: #C9973A;
+    --color-line: #E3DFD5;
+    --font-display: 'Fraunces', serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+    --radius: 4px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  img, svg { display: block; }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; }
+  :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+
+  /* ── 🏃‍♂️ INFRASTRUCTURE FOR THE RUNNING TEXT ANNOUNCEMENT TOP BAR ── */
+  .demo-ribbon {
+    background: var(--color-ink); 
+    color: #fff; 
+    overflow: hidden; /* Clips the overflow text track bounding boxes */
+    white-space: nowrap; /* Forces all message metrics onto a single horizontal layer */
+    font-family: var(--font-mono); 
+    font-size: 12px; 
+    letter-spacing: .06em; 
+    padding: 10px 0;
+    display: flex;
+    user-select: none;
+  }
+  
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: runningWords 25s linear infinite; /* Loops smoothly over time */
+  }
+
+  .marquee-content {
+    display: inline-block;
+    padding-right: 40px; /* Buffer padding between textual text strings loops */
+  }
+  .demo-ribbon strong { color: var(--color-accent-2); }
+
+  /* Perfect, frame-accurate infinite reset keyframe calculations */
+  @keyframes runningWords {
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-50%, 0, 0); } /* Pulls exactly half the duplicated content length track */
+  }
+
+  /* Header Navigation */
+  header {
+    position: sticky; top: 0; z-index: 40;
+    background: rgba(246,244,239,0.92); backdrop-filter: blur(6px); border-bottom: 1px solid var(--color-line);
+  }
+  .nav { display: flex; align-items: center; justify-content: space-between; padding: 18px 28px; }
+  .logo { font-family: var(--font-display); font-size: 22px; font-weight: 600; letter-spacing: .01em; cursor: pointer; }
+  .nav-links { display: flex; gap: 32px; font-size: 14px; font-weight: 500; }
+  .nav-links a { padding: 4px 0; color: var(--color-ink-soft); }
+  .nav-links a:hover { color: var(--color-ink); }
+  .nav-right { display: flex; align-items: center; gap: 22px; }
+  .icon-btn { position: relative; color: var(--color-ink); }
+  .cart-count {
+    position: absolute; top: -8px; right: -10px; background: var(--color-accent); color: #fff;
+    font-family: var(--font-mono); font-size: 10px; width: 16px; height: 16px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Single Page View Switching matrices */
+  .view-section { display: none; }
+  .view-section.active { display: block; }
+
+  .hero { padding: 80px 28px 40px; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 64px; align-items: center; }
+  .eyebrow {
+    font-family: var(--font-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--color-accent);
+    display: flex; align-items: center; gap: 8px; margin-bottom: 18px;
+  }
+  .eyebrow::before { content: ''; width: 6px; height: 6px; background: var(--color-accent); border-radius: 50%; }
+  .hero h1 { font-family: var(--font-display); font-weight: 500; font-size: 56px; line-height: 1.05; letter-spacing: -0.01em; margin-bottom: 22px; }
+  .hero h1 em { font-style: italic; color: var(--color-accent); }
+  .hero p.lede { font-size: 17px; color: var(--color-ink-soft); max-width: 440px; margin-bottom: 32px; }
+  .hero-ctas { display: flex; gap: 14px; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 26px; border-radius: var(--radius); font-size: 14px; font-weight: 600; letter-spacing: .01em; transition: transform .15s ease, box-shadow .15s ease; }
+  .btn-primary { background: var(--color-ink); color: #fff; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,.18); }
+  .btn-ghost { border: 1px solid var(--color-line); color: var(--color-ink); }
+  .btn-ghost:hover { border-color: var(--color-ink); }
+  
+  /* Automated Slide Carousel */
+  .hero-visual { 
+    aspect-ratio: 1/1; 
+    border-radius: 8px; 
+    position: relative; 
+    overflow: hidden; 
+    border: 1px solid var(--color-line);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  }
+  .carousel-track {
+    display: flex;
+    width: 400%; 
+    height: 100%;
+    animation: loopCarousel 12s cubic-bezier(0.85, 0, 0.15, 1) infinite; 
+  }
+  .carousel-slide { width: 25%; height: 100%; position: relative; }
+  .carousel-slide img { width: 100%; height: 100%; object-fit: cover; }
+  .carousel-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(28,35,33,0.4) 0%, transparent 50%); }
+
+  @keyframes loopCarousel {
+    0%, 20%   { transform: translateX(0%); }       
+    25%, 45%  { transform: translateX(-25%); }     
+    50%, 70%  { transform: translateX(-50%); }     
+    75%, 95%  { transform: translateX(-75%); }     
+    100%      { transform: translateX(0%); }       
+  }
+
+  .strip { background: var(--color-ink); color: #fff; display: grid; grid-template-columns: repeat(3,1fr); text-align: center; margin-top: 40px; }
+  .strip div { padding: 34px 20px; border-right: 1px solid rgba(255,255,255,.1); }
+  .strip div:last-child { border-right: none; }
+  .strip strong { display: block; font-family: var(--font-display); font-size: 22px; margin-bottom: 4px; }
+  .strip span { font-size: 12px; color: rgba(255,255,255,.6); font-family: var(--font-mono); }
+
+  .section { padding: 60px 28px; }
+  .section-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 40px; border-bottom: 1px solid var(--color-line); padding-bottom: 20px; }
+  .section-head h2 { font-family: var(--font-display); font-size: 30px; font-weight: 500; }
+  .section-head span { font-family: var(--font-mono); font-size: 12px; color: var(--color-ink-soft); }
+  
+  /* Responsive Layout Cards grid */
+  .grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 28px; }
+  .card { background: var(--color-surface); border: 1px solid var(--color-line); border-radius: 6px; overflow: hidden; transition: box-shadow .2s ease, transform .2s ease; cursor: pointer; }
+  .card:hover { box-shadow: 0 14px 30px rgba(28,35,33,.08); transform: translateY(-3px); }
+  .card-media { aspect-ratio: 4/3.4; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; background-color: #EAE8E3; }
+  .card-body { padding: 18px 18px 20px; border-top: 1px solid var(--color-line); }
+  .card-body h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .card-body .desc { font-size: 13px; color: var(--color-ink-soft); margin-bottom: 14px; }
+  .tag-row { display: flex; align-items: center; justify-content: space-between; }
+  .price-tag { font-family: var(--font-mono); font-size: 13px; border: 1px solid var(--color-line); border-radius: 20px; padding: 4px 12px; background-color: #fafbfc; }
+  .add-btn { font-size: 12px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: var(--color-accent); display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 4px; transition: all 0.2s ease; }
+  .add-btn:hover { background-color: #E8F5E9; }
+
+  .product-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+  .card:hover .product-img { transform: scale(1.05); }
+
+  /* In-depth detail routing views layout */
+  .detail-layout { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 56px; padding-top: 20px; }
+  .detail-image-box { aspect-ratio: 4/3.5; border-radius: 8px; overflow: hidden; border: 1px solid var(--color-line); background-color: #EAE8E3; }
+  .detail-image-box img { width: 100%; height: 100%; object-fit: cover; }
+  .detail-info-pane { display: flex; flex-direction: column; justify-content: center; }
+  .back-link { font-family: var(--font-mono); font-size: 13px; color: var(--color-accent); display: inline-flex; align-items: center; gap: 6px; margin-bottom: 24px; cursor: pointer; font-weight: 600; }
+  .detail-title { font-family: var(--font-display); font-size: 42px; font-weight: 500; margin-bottom: 12px; line-height: 1.1; }
+  .detail-price { font-family: var(--font-mono); font-size: 22px; font-weight: 500; color: var(--color-accent); margin-bottom: 20px; }
+  .detail-description { font-size: 16px; color: var(--color-ink-soft); margin-bottom: 32px; max-width: 480px; line-height: 1.6; }
+  .info-tag-pill { display: inline-block; font-family: var(--font-mono); font-size: 11px; padding: 4px 10px; background-color: #E7EFE9; color: var(--color-accent); border-radius: 4px; font-weight: 600; margin-bottom: 16px; width: max-content; }
+
+  /* Shopping Cart Slider Drawer */
+  #cart-drawer {
+    position: fixed; top: 0; right: -400px; width: 380px; height: 100%;
+    background: var(--color-surface); box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+    z-index: 50; display: flex; flex-direction: column; transition: right 0.3s ease; border-left: 1px solid var(--color-line);
+  }
+  #cart-drawer.open { right: 0; }
+  .cart-header { padding: 24px; border-bottom: 1px solid var(--color-line); display: flex; align-items: center; justify-content: space-between; }
+  .cart-header h3 { font-family: var(--font-display); font-size: 20px; }
+  .cart-close-btn { font-size: 24px; color: var(--color-ink-soft); cursor: pointer; }
+  .cart-items-list { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+  .cart-item-row { display: flex; justify-content: space-between; align-items: center; font-size: 14px; border-bottom: 1px dashed var(--color-line); padding-bottom: 10px; }
+  .cart-footer { padding: 24px; border-top: 1px solid var(--color-line); background: #FAF9F6; }
+  .cart-total-row { display: flex; justify-content: space-between; font-weight: 700; font-size: 16px; margin-bottom: 16px; }
+  .checkout-btn { width: 100%; background: var(--color-ink); color: #fff; text-align: center; padding: 14px; font-weight: 600; border-radius: var(--radius); }
+
+  footer { border-top: 1px solid var(--color-line); padding: 50px 28px 30px; margin-top: 60px; }
+  .foot-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1.2fr; gap: 32px; margin-bottom: 40px; }
+  .foot-grid h4 { font-size: 13px; margin-bottom: 14px; }
+  .foot-grid ul { list-style: none; font-size: 13px; color: var(--color-ink-soft); display: flex; flex-direction: column; gap: 8px; }
+  .foot-grid input { width: 100%; padding: 10px 12px; border: 1px solid var(--color-line); border-radius: var(--radius); font-size: 13px; margin-top: 10px; }
+  .foot-bottom { display: flex; justify-content: space-between; font-size: 12px; color: var(--color-ink-soft); font-family: var(--font-mono); border-top: 1px solid var(--color-line); padding-top: 20px; }
+
+  #chat-launcher {
+    position: fixed; bottom: 26px; right: 26px; z-index: 100; width: 58px; height: 58px; border-radius: 50%;
+    background: var(--color-ink); color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 24px rgba(0,0,0,.25); transition: transform .15s ease;
+  }
+  #chat-launcher:hover { transform: scale(1.06); }
+  #chat-launcher svg { width: 24px; height: 24px; }
+  #chat-launcher .ping { position: absolute; top: -4px; right: -4px; width: 12px; height: 12px; border-radius: 50%; background: var(--color-accent-2); animation: ping 2.2s infinite; }
+  @keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(201,151,58,.55); } 70% { box-shadow: 0 0 0 8px rgba(201,151,58,0); } 100% { box-shadow: 0 0 0 0 rgba(201,151,58,0); } }
+  #chat-panel {
+    position: fixed; bottom: 96px; right: 26px; z-index: 100; width: 380px; height: 600px; background: var(--color-surface); border: 1px solid var(--color-line); border-radius: 14px; box-shadow: 0 24px 60px rgba(0,0,0,.22);
+    display: flex; flex-direction: column; overflow: hidden; transform: translateY(16px) scale(.97); opacity: 0; pointer-events: none; transition: opacity .18s ease, transform .18s ease;
+  }
+  #chat-panel.open { transform: translateY(0) scale(1); opacity: 1; pointer-events: auto; }
+  #chat-panel-head { background: linear-gradient(to right, var(--color-accent), #1d4a3d); color: #fff; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; }
+  #chat-panel-head .who { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; }
+  #chat-panel-head .dot { width: 8px; height: 8px; border-radius: 50%; background:#8CF0C6; }
+  #chat-panel-head button { color: #fff; opacity: .85; }
+  #chat-frame-wrap { flex: 1; position: relative; background: #fafafa; }
+  #chat-frame-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  #chat-fallback { position: absolute; inset: 0; padding: 22px; font-size: 13px; color: var(--color-ink-soft); display: flex; flex-direction: column; gap: 10px; justify-content: center; text-align: center; background: #fafafa; }
+  #chat-fallback code { background: #eee; padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono); font-size: 12px; }
+
+  @media (max-width: 880px) {
+    .hero { grid-template-columns: 1fr; padding-top: 40px; }
+    .hero h1 { font-size: 38px; }
+    .grid, .detail-layout { grid-template-columns: 1fr; }
+    .strip { grid-template-columns: 1fr; }
+    .strip div { border-right: none; border-bottom: 1px solid rgba(255,255,255,.1); }
+    .foot-grid { grid-template-columns: 1fr 1fr; }
+    .nav-links { display: none; }
+    #chat-panel { width: 92vw; right: 4vw; height: 70vh; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="demo-ribbon">
+    <div class="marquee-track">
+      <div class="marquee-content">📦 Continuous Global Tracking Active — <strong>Domestic Shipping: 3-5 Business Days</strong> ⚡</div>
+      <div class="marquee-content">🔥 Mid-Year Clearance Active — Use Token Code <strong>"AURA20"</strong> for 20% off at checkout 🛒</div>
+      <div class="marquee-content">🌍 Sustainable Logistics Verified — 100% Carbon Neutral Courier Routes 🌿</div>
+      <div class="marquee-content">📦 Continuous Global Tracking Active — <strong>Domestic Shipping: 3-5 Business Days</strong> ⚡</div>
+      <div class="marquee-content">🔥 Mid-Year Clearance Active — Use Token Code <strong>"AURA20"</strong> for 20% off at checkout 🛒</div>
+      <div class="marquee-content">🌍 Sustainable Logistics Verified — 100% Carbon Neutral Courier Routes 🌿</div>
+    </div>
+  </div>
+
+  <header>
+    <nav class="wrap nav">
+      <div class="logo" onclick="navigateToCatalog()">Common Goods</div>
+      <div class="nav-links">
+        <a href="#shop" onclick="navigateToCatalog()">Shop</a>
+        <a href="#about">About</a>
+        <a href="#faq">FAQ</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <div class="nav-right">
+        <button class="icon-btn" aria-label="Search"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></button>
+        <button class="icon-btn" id="cart-trigger-btn" aria-label="Cart">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h2l2.4 11.2A2 2 0 0 0 10.35 19h7.3a2 2 0 0 0 1.95-1.55L21 9H6"/><circle cx="9.5" cy="21.5" r="1"/><circle cx="18" cy="21.5" r="1"/></svg>
+          <span class="cart-count" id="global-cart-badge">0</span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main id="catalog-view" class="view-section active">
+    <section class="hero wrap">
+      <div>
+        <div class="eyebrow">New arrivals — restocked weekly</div>
+        <h1>Everyday things,<br><em>done properly.</em></h1>
+        <p class="lede">Common Goods is a small catalog of well-made basics — the kind of things you replace less often because they were made right the first time.</p>
+        <div class="hero-ctas">
+          <a href="#shop" class="btn btn-primary">Shop the catalog <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+          <a href="#about" class="btn btn-ghost">Our story</a>
+        </div>
+      </div>
+      
+      <div class="hero-visual">
+        <div class="carousel-track">
+          <div class="carousel-slide">
+            <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80" alt="Ceramic Mug">
+            <div class="carousel-overlay"></div>
+          </div>
+          <div class="carousel-slide">
+            <img src="https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=600&q=80" alt="Market Tote">
+            <div class="carousel-overlay"></div>
+          </div>
+          <div class="carousel-slide">
+            <img src="https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=600&q=80" alt="Linen Candle">
+            <div class="carousel-overlay"></div>
+          </div>
+          <div class="carousel-slide">
+            <img src="https://images.unsplash.com/photo-1580301762395-21ce84d00bc6?auto=format&fit=crop&w=600&q=80" alt="Recycled Wool Throw">
+            <div class="carousel-overlay"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="strip">
+      <div><strong>3–5 days</strong><span>DOMESTIC SHIPPING</span></div>
+      <div><strong>30 days</strong><span>RETURN WINDOW</span></div>
+      <div><strong>24 hrs</strong><span>SUPPORT RESPONSE</span></div>
+    </section>
+
+    <section class="section wrap" id="shop">
+      <div class="section-head">
+        <h2>The catalog</h2>
+        <span>09 ITEMS AVAILABLE</span>
+      </div>
+      <div class="grid" id="dynamic-product-catalog-grid"></div>
+    </section>
+  </main>
+
+  <main id="product-detail-view" class="view-section wrap section">
+     <div class="back-link" onclick="navigateToCatalog()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back to Catalog
+     </div>
+     <div class="detail-layout" id="product-detail-dynamic-target"></div>
+  </main>
+
+  <div id="cart-drawer">
+    <div class="cart-header">
+      <h3>Your Bag</h3>
+      <button class="cart-close-btn" id="cart-close-btn">&times;</button>
+    </div>
+    <div class="cart-items-list" id="cart-items-container"></div>
+    <div class="cart-footer">
+      <div class="cart-total-row"><span>Subtotal</span><span id="cart-subtotal-label">$0.00</span></div>
+      <button class="checkout-btn" id="checkout-action-trigger">Proceed to Checkout</button>
+    </div>
+  </div>
+
+  <footer>
+    <div class="wrap foot-grid">
+      <div><h4>Common Goods</h4><p style="font-size:13px; color:var(--color-ink-soft); max-width:260px;">A high-converting dynamic storefront web application prototype.</p></div>
+      <div><h4>Shop</h4><ul><li>All products</li><li>New arrivals</li><li>Gift cards</li></ul></div>
+      <div><h4>Support</h4><ul><li>Shipping info</li><li>Returns</li><li>Contact us</li></ul></div>
+      <div><h4>Stay in the loop</h4><input type="email" placeholder="you@email.com"></div>
+    </div>
+    <div class="wrap foot-bottom"><span>© 2026 COMMON GOODS — UNIFIED FULLSTACK</span><span>MARQUEE PIPELINE ACTIVE</span></div>
+  </footer>
+
+  <button id="chat-launcher" aria-label="Open store assistant">
+    <span class="ping"></span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12a8.5 8.5 0 1 1-3.7-7"/><path d="M21 3l-6 6-2-2"/></svg>
+  </button>
+
+  <div id="chat-panel">
+    <div id="chat-panel-head">
+      <div class="who"><span class="dot"></span> Store Assistant</div>
+      <button id="chat-close" aria-label="Close chat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div id="chat-frame-wrap">
+      <div id="chat-fallback">
+        <p>Connecting to the assistant at <code id="chat-url-label"></code>…</p>
+        <p>If nothing loads, make sure your Streamlit app is running (<code>streamlit run app.py</code>).</p>
+      </div>
+      <iframe id="chat-iframe" title="Store assistant chat" loading="lazy"></iframe>
+    </div>
+  </div>
+
+  <script>
+    const storeProducts = [
+      { id: 1, name: "Ceramic Everyday Mug", description: "Matte glaze finishing, 12oz capacity, entirely dishwasher safe.", long_desc: "Crafted from locally sourced raw stoneware clay, our Ceramic Everyday Mug features an ergonomically balanced loop handle and an unglazed, sanded clay base for tactile texture. The interior is protected by an easy-clean matte white vitrified glaze engineered to resist dark espresso or tea staining over years of heavy daily kitchen use.", price: 18.00, image_url: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=500&q=80" },
+      { id: 2, name: "Canvas Market Tote", description: "Heavy 14oz organic cotton canvas featuring a double reinforced base.", long_desc: "An eco-friendly companion built for durability. This tote features premium box-stitched shoulder strap connections capable of supporting over 40 lbs of continuous load weights. Includes double interior stash slip pockets to prevent fragile keys or personal smartphones from falling beneath heavier retail grocery bundles.", price: 32.00, image_url: "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=500&q=80" },
+      { id: 3, name: "Linen Wick Candle", description: "Natural soy wax with a clean 45hr therapeutic burn of cedar and sage notes.", long_desc: "Hand-poured into thick tinted reusable amber glassware jars, our customized Linen Wick Candles use 100% natural Midwestern agricultural soy wax crystals. Scented exclusively with rare organic steam-distilled essential evergreen tree leaf distillations to generate a rich, grounding woodland environment.", price: 24.00, image_url: "https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=500&q=80" },
+      { id: 4, name: "Recycled Wool Throw", description: "Premium 130x180cm structural dimensions, woven from sustainable recycled wool blends.", long_desc: "Spun inside historic European textile mill houses, this thermal insulating weave matches lightweight breathing properties with deep interior warmth parameters. Woven using a sustainable 60% post-consumer yarn blend completely carded to block micro-shedding behaviors during winter couch resting cycles.", price: 68.00, image_url: "https://images.unsplash.com/photo-1580301762395-21ce84d00bc6?auto=format&fit=crop&w=500&q=80" },
+      { id: 5, name: "Insulated Steel Bottle", description: "Double-walled 750ml flask, keeps cold liquids iced 24hr / hot drinks piping for 12hr.", long_desc: "Constructed using food-grade 18/8 pro-grade stainless steel framing architectures, this double-walled vacuum insulation canister creates an absolute thermal barrier. Coated with an ultra-matte exterior textured powder grip layout that prevents sweaty exterior water bead condensation issues entirely.", price: 29.00, image_url: "https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&w=500&q=80" },
+      { id: 6, name: "Leather Cardholder", description: "Hand-stitched full-grain vegetable tanned leather with a compact 4-slot layout.", long_desc: "Sourced from premier organic tanneries, our leather items utilize natural tree bark oils to lock in structural grain performance. Features meticulous thick hand-waxed structural thread paths that secure card layers and develop a warm, dark individual amber patina wear appearance over decades of use.", price: 22.00, image_url: "https://images.unsplash.com/photo-1627123424574-724758594e93?auto=format&fit=crop&w=500&q=80" },
+      { id: 7, name: "Organic Cotton Socks", description: "Premium triple-pack bundle, breathable ribbed comfort weave construction.", long_desc: "Knit using specialized long-staple organic plant fibers, this value pack delivers supportive heel cup geometries and elastic compression properties. Includes flat linked micro-toe seam closures to avoid standard rubbing abrasions or material bundling friction within casual shoes.", price: 15.00, image_url: "https://images.unsplash.com/photo-1582966772680-860e372bb558?auto=format&fit=crop&w=500&q=80" },
+      { id: 8, name: "Minimalist Desk Clock", description: "Completely silent precise quartz movement housed inside natural grain ash wood.", long_desc: "Bring modern organic architecture parameters onto your active workspace tables. Carved from singular dense blocks of white ash wood timbers, this clean display framework utilizes frictionless internal standard sweep gear matrices that drop mechanical click-clack noise factors completely.", price: 45.00, image_url: "https://images.unsplash.com/photo-1563861826100-9cb868fdbe1c?auto=format&fit=crop&w=500&q=80" },
+      { id: 9, name: "Handwoven Storage Basket", description: "Flexible natural sea-grass fiber build with robust integrated carry loop handles.", long_desc: "Interwoven using wild harvested marsh sea-grass fibers, these multi-functional organization tubs match flexible, lightweight storage properties with high structural strength parameters. Built with internal wire support systems to prevent wall wrinkling over long storage intervals.", price: 38.00, image_url: "https://images.unsplash.com/photo-1531835551805-16d864c8d311?auto=format&fit=crop&w=500&q=80" }
+    ];
+
+    const CONFIG = { CHAT_URL: "http://localhost:8501" };
+    let shoppingBag = [];
+
+    const DOM = {
+      launcher: document.getElementById('chat-launcher'),
+      panel: document.getElementById('chat-panel'),
+      closeBtn: document.getElementById('chat-close'),
+      iframe: document.getElementById('chat-iframe'),
+      urlLabel: document.getElementById('chat-url-label'),
+      catalogGrid: document.getElementById('dynamic-product-catalog-grid'),
+      cartTriggerBtn: document.getElementById('cart-trigger-btn'),
+      cartDrawer: document.getElementById('cart-drawer'),
+      cartCloseBtn: document.getElementById('cart-close-btn'),
+      cartItemsContainer: document.getElementById('cart-items-container'),
+      cartSubtotalLabel: document.getElementById('cart-subtotal-label'),
+      globalCartBadge: document.getElementById('global-cart-badge'),
+      checkoutBtn: document.getElementById('checkout-action-trigger'),
+      catalogView: document.getElementById('catalog-view'),
+      detailView: document.getElementById('product-detail-view'),
+      detailDynamicTarget: document.getElementById('product-detail-dynamic-target')
+    };
+
+    if (DOM.urlLabel) DOM.urlLabel.textContent = CONFIG.CHAT_URL;
+
+    window.navigateToDetails = function(productId) {
+      const product = storeProducts.find(p => p.id === productId);
+      if (!product) return;
+
+      DOM.detailDynamicTarget.innerHTML = `
+        <div class="detail-image-box">
+           <img src="${product.image_url}" alt="${product.name}">
+        </div>
+        <div class="detail-info-pane">
+           <span class="info-tag-pill">Premium Catalog Entry</span>
+           <h1 class="detail-title">${product.name}</h1>
+           <div class="detail-price">$${product.price.toFixed(2)}</div>
+           <p class="detail-description">${product.long_desc}</p>
+           <button class="btn btn-primary" onclick="addProductToBag('${product.name}', ${product.price})" style="width: max-content;">
+              Add To Shopping Bag — $${product.price.toFixed(2)}
+           </button>
+        </div>
+      `;
+
+      DOM.catalogView.classList.remove('active');
+      DOM.detailView.classList.add('active');
+      window.scrollTo(0, 0);
+    };
+
+    window.navigateToCatalog = function() {
+      DOM.detailView.classList.remove('active');
+      DOM.catalogView.classList.add('active');
+    };
+
+    let isChatLoaded = false;
+    function toggleChat() {
+      if (DOM.panel.classList.contains('open')) {
+        DOM.panel.classList.remove('open');
+      } else {
+        DOM.panel.classList.add('open');
+        if (!isChatLoaded) {
+          DOM.iframe.src = CONFIG.CHAT_URL;
+          isChatLoaded = true;
+        }
+      }
+    }
+    if (DOM.launcher) DOM.launcher.addEventListener('click', toggleChat);
+    if (DOM.closeBtn) DOM.closeBtn.addEventListener('click', () => DOM.panel.classList.remove('open'));
+
+    function renderCatalogGrid() {
+      if (!DOM.catalogGrid) return;
+      let gridHTML = '';
+      storeProducts.forEach(item => {
+        gridHTML += `
+          <div class="card" onclick="navigateToDetails(${item.id})">
+            <div class="card-media">
+              <img src="${item.image_url}" alt="${item.name}" class="product-img" loading="lazy">
+            </div>
+            <div class="card-body">
+              <h3>${item.name}</h3>
+              <p class="desc">${item.description}</p>
+              <div class="tag-row">
+                <span class="price-tag">$${item.price.toFixed(2)}</span>
+                <button class="add-btn" onclick="event.stopPropagation(); addProductToBag('${item.name}', ${item.price})">+ Add</button>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      DOM.catalogGrid.innerHTML = gridHTML;
+    }
+
+    window.addProductToBag = function(name, price) {
+      const existingProduct = shoppingBag.find(row => row.name === name);
+      if (existingProduct) {
+        existingProduct.quantity += 1;
+      } else {
+        shoppingBag.push({ name, price, quantity: 1 });
+      }
+      refreshShoppingBagUI();
+      if (DOM.cartDrawer) DOM.cartDrawer.classList.add('open');
+    };
+
+    window.removeBagItem = function(name) {
+      shoppingBag = shoppingBag.filter(row => row.name !== name);
+      refreshShoppingBagUI();
+    };
+
+    function refreshShoppingBagUI() {
+      const aggregateCount = shoppingBag.reduce((sum, row) => sum + row.quantity, 0);
+      if (DOM.globalCartBadge) DOM.globalCartBadge.textContent = aggregateCount;
+
+      if (shoppingBag.length === 0) {
+        if (DOM.cartItemsContainer) DOM.cartItemsContainer.innerHTML = '<p style="color: var(--color-ink-soft); text-align: center; margin-top: 40px;">Your shopping bag is completely empty.</p>';
+        if (DOM.cartSubtotalLabel) DOM.cartSubtotalLabel.textContent = '$0.00';
+        return;
+      }
+
+      let listHTML = '';
+      let finalPriceSum = 0;
+      shoppingBag.forEach(row => {
+        finalPriceSum += row.price * row.quantity;
+        listHTML += `
+          <div class="cart-item-row">
+            <div>
+              <strong>${row.name}</strong><br>
+              <span style="color: var(--color-ink-soft); font-size:12px;">$${row.price.toFixed(2)} &times; ${row.quantity}</span>
+            </div>
+            <button style="color: #ff4b4b; font-size:12px; font-weight:600;" onclick="removeBagItem('${row.name}')">Remove</button>
+          </div>
+        `;
+      });
+      if (DOM.cartItemsContainer) DOM.cartItemsContainer.innerHTML = listHTML;
+      if (DOM.cartSubtotalLabel) DOM.cartSubtotalLabel.textContent = `$${finalPriceSum.toFixed(2)}`;
+    }
+
+    if (DOM.cartTriggerBtn) DOM.cartTriggerBtn.addEventListener('click', () => DOM.cartDrawer.classList.add('open'));
+    if (DOM.cartCloseBtn) DOM.cartCloseBtn.addEventListener('click', () => DOM.cartDrawer.classList.remove('open'));
+    if (DOM.checkoutBtn) DOM.checkoutBtn.addEventListener('click', () => {
+      if (shoppingBag.length === 0) return alert("Your shopping bag is empty!");
+      alert("Checkout compilation successful!");
+    });
+
+    renderCatalogGrid();
+  </script>
+</body>
+</html>
